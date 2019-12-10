@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+
+<html>
+  <body>
+    <news-app></news-app>
+
+    <script type="module">
+
+      import { LitElement, html } from 'https://unpkg.com/lit-element?module';
+
+      class NewsApp extends LitElement {
+        static get properties() {
+          return {
+            loading: { type: Boolean },
+            articles: { type: Array },
+            filter: { type: String},
+          };
+        }
+
+        connectedCallback() {
+          super.connectedCallback();
+
+          if(!this.articles) {
+            this.fetchArticles();
+          }
+        }
+
+        async fetchArticles() {
+          this.loading = true;
+          const response = await fetch(
+          'https://newsapi.org/v2/everything?q=web%20development&apiKey=51a7eb0db5e149f688cf68cb9892f0ec',
+           );
+          const jsonResponse = await response.json();
+          this.articles = jsonResponse.articles;
+          this.loading = false;
+        }
+
+        render() {
+          if (this.loading) {
+            return html`
+              <p>Loading News....</p>
+            `;
+          }
+
+          const totalRead = this.articles.filter(a => a.read).length;
+          const totalUnread = this.articles.length - totalRead;
+          const articles = this.articles.filter(article => {
+            if (!this.filter) {
+              return true;
+            }
+            return this.filter === 'read' ? article.read : !article.read;
+          });
+
+          return html`
+            <h1>News App</h1>
+
+            <h2>Articles</h2>
+            <p>( ${totalRead} read and ${totalUnread} unread) </p>
+
+            <button @click=${this._filterNone}>Filter none</button>
+            <button @click=${this._filterRead}>Filter read</button>
+            <button @click=${this._filterUnread}>Filter unread</button>
+
+            <p> Current filter is ${this.filter} </p>
+            <ul>
+              ${articles.map(
+                article => html`
+                  <li>
+                    <news-article
+                      .title=${article.title}
+                      .description=${article.description}
+                      .read=${article.read}
+                      @toggle-read-status=${() => this._toggleReadStatus(article)}
+                    ></news-article>
+                  </li>
+                `,
+              )}
+            </ul>
+          `;
+        }
+
+        _toggleReadStatus(articleToUpdate){
+          this.articles = this.articles.map(article => {
+            return article === articleToUpdate ? { ...article, read: !article.read } : article;
+          });
+        }
+
+        _filterNone() {
+          this.filter = null;
+        }
+
+        _filterRead() {
+          this.filter = 'read';
+        }
+
+        _filterUnread() {
+          this.filter = 'unread';
+        }
+      }
+
+      customElements.define('news-app',NewsApp);
+
+      class NewsArticle extends LitElement {
+        static get properties() {
+          return {
+            title: { type: String },
+            description: { type: String },
+            read: { type: Boolean },
+          };
+        }
+
+        render() {
+          return html`
+            <h3>${this.title} [ ${this.read ? 'read' : 'unread' } ]</h3>
+            <p>${this.description}</p>
+            <button @click=${this._toggleReadStatus}>
+              Mark as ${this.read ? 'unread' : 'read'}
+            </button>
+          `;
+        }
+
+        _toggleReadStatus() {
+          this.dispatchEvent(new CustomEvent('toggle-read-status'));
+        }
+      }
+
+      customElements.define('news-article',NewsArticle);
+    </script>
+  </body>
+</html>
