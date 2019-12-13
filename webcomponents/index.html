@@ -2,16 +2,10 @@
 
 <html>
     <body>
-        <style>
-            body{
-             font-family: 'Courier New', Courier, monospace;
-            }
-            h1{
-                color: blue;
-            }
-            </style>
-        <cool-heading>
-        </cool-heading>
+        <link rel="stylesheet" src="style.css"/>
+
+        <cool-heading></cool-heading>
+
         <template>
             <style>
                 h1{
@@ -20,25 +14,11 @@
             </style>
             <h1>Hello Web Components</h1>
         </template>
-        <h1> Hello World !</h1>
-        <script type="module">
-            class CoolHeading extends HTMLElement {
-                constructor() {
-                    super();
-                    this.addEventListener('click', () => {
-                        this.style.color = 'green';
-                    });
-                 }
-                connectedCallback() {
-                    console.log('Cool heading connected.');
-                    const template = document.querySelector('template');
-                    const clone = document.importNode(template.content, true);
-                    this.attachShadow({ mode: 'open'});
-                    this.shadowRoot.appendChild(clone);
-                }
-            }
-            customElements.define('cool-heading',CoolHeading);
-        </script>
+
+        <h1> Hello HTML World !</h1>
+
+        <script src="basic-wc.js"></script>
+
     </body>
 </html>
 

@@ -1,148 +1,145 @@
 <!DOCTYPE html>
 <html>
-    <body>
-        <lit-elem-app></lit-elem-app>
+  <body>
+      <lit-elem-app></lit-elem-app>
+      <script type="module">
+        import { LitElement, html, css } from 'https://unpkg.com/lit-element?module';
 
-        <script type="module">
-            import { LitElement, html, css } from 'https://unpkg.com/lit-element?module';
+        class LitElemList extends LitElement {
+          static get properties() {
+            return {
+              litelems: { type: Array }
+            };
+          }
 
-            class LitElemList extends LitElement {
-              static get properties() {
-                return {
-                  litelems: { type: Array }
-                };
+          static get styles() {
+            return css`
+              :host {
+                color: blue;
               }
 
-              static get styles() {
-                return css`
-                  :host {
-                    color: blue;
-                  }
-
-                  ul {
-                    list-style: none;
-                    padding: 0;
-                  }
-
-                  button {
-                    background-color: transparent;
-                    border: none;
-                  }
-                `;
+              ul {
+                list-style: none;
+                padding: 0;
               }
 
-              render() {
-                if(!this.litelems) {
-                  return html``;
-                }
-
-                return html`
-                  <ol>
-                    ${this.litelems.map(
-                      litelem => html`
-                        <li>
-                        <input type="checkbox" .checked=${litelem.rendered} @change=${e => this._changeRenderedFlag(e, litelem)}/>
-                        ${litelem.text}
-                        <button @click=${() => this._removeLitElem(litelem)}> X </button>
-                        </li>
-                      `,
-                    )}
-                  </ol>
-                `;
+              button {
+                background-color: transparent;
+                border: none;
               }
-
-              _changeRenderedFlag(e, changedLitelem) {
-                const eventDetails = { changedLitelem, rendered: e.target.checked };
-                this.dispatchEvent(new CustomEvent('change-litelem-rendered', { detail: eventDetails }));
-              }
-
-              _removeLitElem(litelem) {
-                this.dispatchEvent(new CustomEvent('remove-litelem', { detail: litelem }));
-              }
-            }
-
-            customElements.define('litelem-list', LitElemList);
-
-            const author = 'OPEN-WC';
-            const homepage = 'https://open-wc.org/';
-            const footerTemplate = html`
-              <footer> Made with love by <a href="${homepage}">${author}</a></footer>
             `;
+          }
 
-            class LitElemApp extends LitElement {
-              static get properties() {
-                return {
-                  litelems: { type: Array }
-                };
-              }
-
-              constructor() {
-                super();
-                this.litelems = [
-                  {text: 'Elem A', rendered: true},
-                  {text: 'Elem B', rendered: false},
-                  {text: 'Elem C', rendered: false}
-                ];
-              }
-
-              connectedCallback() {
-                super.connectedCallback();
-                console.log('lit element connected');
-              }
-
-              render() {
-                const renderedCount = this.litelems.filter(e => e.rendered).length;
-                const notRenderedCount = this.litelems.length - renderedCount;
-
-                return html`
-                  <h1>My lit-html & lit-element App</h1>
-
-                  <input id="addLitElem" placeholder="ElementName" />
-                  <button @click="${this._addLitElem}"> Add LitElement </button>
-
-                  <litelem-list
-                    .litelems="${this.litelems}"
-                    @change-litelem-rendered="${this._changeRenderedFlag}"
-                    @remove-litelem="${this._removeLitElem}"
-                  ></litelem-list>
-
-                  <div> Total Rendered Elements : ${renderedCount}</div>
-                  <div> Total unRendered Elements : ${notRenderedCount}</div>
-                  <br>
-                  ${footerTemplate}
-                `;
-              }
-
-              _addLitElem() {
-                const input = this.shadowRoot.getElementById('addLitElem');
-                const text = input.value;
-                input.value = '';
-
-                this.litelems = [
-                  ...this.litelems,
-                  {text, rendered: false},
-                ];
-              }
-
-              _removeLitElem(e) {
-                this.litelems = this.litelems.filter(elem => elem !== e.detail );
-              }
-
-              _changeRenderedFlag(e) {
-                const { changedLitelem, rendered } = e.detail;
-
-                this.litelems = this.litelems.map((litelem) => {
-                  if(litelem != changedLitelem) {
-                    return litelem;
-                  }
-                  return { ...changedLitelem, rendered };
-                })
-              }
+          render() {
+            if(!this.litelems) {
+              return html``;
             }
 
-            customElements.define('lit-elem-app', LitElemApp);
+            return html`
+              <ol>
+                ${this.litelems.map(
+                  litelem => html`
+                    <li>
+                    <input type="checkbox" .checked=${litelem.rendered} @change=${e => this._changeRenderedFlag(e, litelem)}/>
+                    ${litelem.text}
+                    <button @click=${() => this._removeLitElem(litelem)}> X </button>
+                    </li>
+                  `,
+                )}
+              </ol>
+            `;
+          }
 
-        </script>
+          _changeRenderedFlag(e, changedLitelem) {
+            const eventDetails = { changedLitelem, rendered: e.target.checked };
+            this.dispatchEvent(new CustomEvent('change-litelem-rendered', { detail: eventDetails }));
+          }
 
-    </body>
+          _removeLitElem(litelem) {
+            this.dispatchEvent(new CustomEvent('remove-litelem', { detail: litelem }));
+          }
+        }
+
+        customElements.define('litelem-list', LitElemList);
+
+        const author = 'OPEN-WC';
+        const homepage = 'https://open-wc.org/';
+        const footerTemplate = html`
+          <footer> Made with love by <a href="${homepage}">${author}</a></footer>
+        `;
+
+        class LitElemApp extends LitElement {
+          static get properties() {
+            return {
+              litelems: { type: Array }
+            };
+          }
+
+          constructor() {
+            super();
+            this.litelems = [
+              {text: 'Elem A', rendered: true},
+              {text: 'Elem B', rendered: false},
+              {text: 'Elem C', rendered: false}
+            ];
+          }
+
+          connectedCallback() {
+            super.connectedCallback();
+            console.log('lit element connected');
+          }
+
+          render() {
+            const renderedCount = this.litelems.filter(e => e.rendered).length;
+            const notRenderedCount = this.litelems.length - renderedCount;
+
+            return html`
+              <h1>My lit-html & lit-element App</h1>
+
+              <input id="addLitElem" placeholder="ElementName" />
+              <button @click="${this._addLitElem}"> Add LitElement </button>
+
+              <litelem-list
+                .litelems="${this.litelems}"
+                @change-litelem-rendered="${this._changeRenderedFlag}"
+                @remove-litelem="${this._removeLitElem}"
+              ></litelem-list>
+
+              <div> Total Rendered Elements : ${renderedCount}</div>
+              <div> Total unRendered Elements : ${notRenderedCount}</div>
+              <br>
+              ${footerTemplate}
+            `;
+          }
+
+          _addLitElem() {
+            const input = this.shadowRoot.getElementById('addLitElem');
+            const text = input.value;
+            input.value = '';
+
+            this.litelems = [
+              ...this.litelems,
+              {text, rendered: false},
+            ];
+          }
+
+          _removeLitElem(e) {
+            this.litelems = this.litelems.filter(elem => elem !== e.detail );
+          }
+
+          _changeRenderedFlag(e) {
+            const { changedLitelem, rendered } = e.detail;
+
+            this.litelems = this.litelems.map((litelem) => {
+              if(litelem != changedLitelem) {
+                return litelem;
+              }
+              return { ...changedLitelem, rendered };
+            })
+          }
+        }
+
+        customElements.define('lit-elem-app', LitElemApp);
+      </script>
+  </body>
 </html>
