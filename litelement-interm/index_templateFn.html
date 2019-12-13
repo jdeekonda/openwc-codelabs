@@ -9,6 +9,16 @@
       import { LitElement, html } from 'https://unpkg.com/lit-element?module';
       import 'https://unpkg.com/@material/mwc-button?module';
 
+      function templateArticle(article, toggleReadStatus) {
+        return html`
+            <h3>${article.title} [ ${article.read ? 'read' : 'unread' } ]</h3>
+            <p>${article.description}</p>
+            <mwc-button @click=${toggleReadStatus}>
+              Mark as ${article.read ? 'unread' : 'read'}
+            </mwc-button>
+          `;
+      }
+
       class NewsApp extends LitElement {
         static get properties() {
           return {
@@ -67,12 +77,7 @@
               ${articles.map(
                 article => html`
                   <li>
-                    <news-article
-                      .title=${article.title}
-                      .description=${article.description}
-                      .read=${article.read}
-                      @toggle-read-status=${() => this._toggleReadStatus(article)}
-                    ></news-article>
+                    ${templateArticle(article, () => this.toggleReadStatus(article))}
                   </li>
                 `,
               )}
@@ -80,7 +85,7 @@
           `;
         }
 
-        _toggleReadStatus(articleToUpdate){
+        toggleReadStatus(articleToUpdate){
           this.articles = this.articles.map(article => {
             return article === articleToUpdate ? { ...article, read: !article.read } : article;
           });
@@ -101,31 +106,6 @@
 
       customElements.define('news-app',NewsApp);
 
-      class NewsArticle extends LitElement {
-        static get properties() {
-          return {
-            title: { type: String },
-            description: { type: String },
-            read: { type: Boolean },
-          };
-        }
-
-        render() {
-          return html`
-            <h3>${this.title} [ ${this.read ? 'read' : 'unread' } ]</h3>
-            <p>${this.description}</p>
-            <mwc-button @click=${this._toggleReadStatus}>
-              Mark as ${this.read ? 'unread' : 'read'}
-            </mwc-button>
-          `;
-        }
-
-        _toggleReadStatus() {
-          this.dispatchEvent(new CustomEvent('toggle-read-status'));
-        }
-      }
-
-      customElements.define('news-article',NewsArticle);
     </script>
   </body>
 </html>
